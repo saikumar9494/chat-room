@@ -1,0 +1,55 @@
+# HTML
+
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Chat App and Task Management</title>
+</head>
+<body>
+ <h1>Chat</h1>
+ <div id="chat">
+    <ul id="messages"></ul>
+    <input id="message" autocomplete="off" /><button id="send">Send</button>
+ </div>
+
+ <h1>Task Management</h1>
+ <div id="task">
+    <ul id="tasks"></ul>
+    <input id="taskTitle" placeholder="Title" /><br>
+    <input id="taskDescription" placeholder="Description" /><br>
+    <button id="createTask">Create Task</button>
+ </div>
+
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ <script>
+    const socket = io();
+
+    // Chat functionality
+    $('#send').click(() => {
+      socket.emit('chat message', { message: $('#message').val() });
+      $('#message').val('');
+    });
+
+    socket.on('chat message', (msg) => {
+      $('#messages').append($('<li>').text(msg.message));
+    });
+
+    // Task management functionality
+    $('#createTask').click(() => {
+      const task = {
+        title: $('#taskTitle').val(),
+        description: $('#taskDescription').val(),
+        completed: false,
+      };
+      socket.emit('createTask', task);
+      $('#taskTitle').val('');
+      $('#taskDescription').val('');
+    });
+
+    socket.on('task created', (task) => {
+      $('#tasks').append($('<li>').text(`Title: ${task.title}, Description: ${task.description}`));
+    });
+ </script>
+</body>
+</html>
